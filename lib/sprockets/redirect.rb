@@ -74,7 +74,12 @@ module Sprockets
 
     # Sends a redirect header back to browser
     def redirect_to_digest_version(env)
-      url = URI(@asset_host || @request.url)
+      raw_url = if @asset_host
+        if @asset_host.respond_to?(:call) then @asset_host.call(@request.path, @request) else @asset_host end
+      else
+        @request.url
+      end
+      url = URI(raw_url)
       url.path = "#{@prefix}/#{digest_path}"
 
       headers = { 'Location'      => url.to_s,
